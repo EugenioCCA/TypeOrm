@@ -1,0 +1,112 @@
+Guia para levantar el sevicio: 
+
+>  ir a Railway y generar una nueva base de datos en postgres, entrar a la parte de vairables
+
+> Se hacen los cambios en el vsc (archivo db) , despues se hace el push para git hub, para despues ir a Render: 
+    https://dashboard.render.com/web/srv-cp7913nsc6pc73a66ln0/deploys/dep-cpajsqdds78s73d35ba0
+
+y hacer un "Deploy latest commit".
+
+> levantar le servico con un npm run dev. y revisar con el postman si el servico ya esta corriendo para poder usar la direccion que da: 
+    https://typeorm-534j.onrender.com/users --Ejemplo
+
+
+> Despues usar la direccion dentro del codigo para llamar a los datos, tal cual como una API. 
+
+
+
+#################################################################################################
+Ejemplo de codigo: 
+import {View, Text, SafeAreaView, StyleSheet, FlatList } from 'react-native';
+import axios from 'axios';
+import {useState,useEffect} from 'react'; 
+
+export default function App() {
+
+  const[data, setData] = useState([]);
+  const[loading, setLoading] = useState([]);
+
+  useEffect(() => {
+    apiRest_typeOrm(); 
+  }, []); //los corchetes indican que solo de llamará una vez a la funcion
+
+
+  const showItem = ({item}) => (
+    <View style={styles.item}>
+      <Text style = {styles.title}>{item.title} </Text>
+      <Text style = {styles.body}> {item.body} </Text>
+    </View>
+  );
+
+   const showUsers = ({item}) => (
+    <View style={styles.item}>
+      <Text style = {styles.title}>{item.correo_electronico} </Text>
+      <Text style = {styles.body}> {item.contrasenia} </Text>
+    </View>
+  );
+
+
+
+
+  const fetchData = async () => {
+    try {
+
+      const response = await axios.get('https://jsonplaceholder.typicode.com/posts'); 
+      setData(response.data); 
+      setLoading(false); 
+
+    }catch (err){
+      console.error(err);
+      setLoading(false); 
+    }
+  }
+
+    const apiRest_typeOrm = async () => {
+    try {
+
+      const response = await axios.get('https://typeorm-534j.onrender.com/users'); 
+      setData(response.data); 
+      setLoading(false); 
+
+    }catch (err){
+      console.error(err);
+      setLoading(false); 
+    }
+  }
+
+
+  return (
+   <View style = {styles.container} > 
+    {loading ? (
+      <Text> Cargando ...</Text>
+    ) : (
+      <FlatList
+        data = {data}
+        keyExtractor= {item => item.id.toString()} 
+        renderItem={showUsers}
+        />        
+    )}
+   </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  item: {
+    backgroundColor: '#f9c2ff',
+    padding: 20,
+    marginVertical: 8,
+    borderRadius: 20,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
+});
